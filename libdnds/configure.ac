@@ -5,9 +5,10 @@
 AC_PREREQ([2.67])
 AC_INIT([DNDS library],[0.1],[nicboul@gmail.com],[libdnds],[https://github.com/nicboul/DNDS/wiki])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
-LT_PREREQ([2.2])
-LT_INIT([dlopen])
+##LT_PREREQ([2.2])
+##LT_INIT([dlopen])
 
+AC_PROG_LIBTOOL
 AC_CONFIG_SRCDIR([src/krypt.c])
 AC_CONFIG_HEADERS(config.h)
 
