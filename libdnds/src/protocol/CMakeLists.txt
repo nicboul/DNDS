@@ -1,6 +1,6 @@
 include_directories("./")
 
-ADD_LIBRARY(dnds_protocol STATIC
+ADD_LIBRARY(dnds_protocol SHARED
 	DNDSMessage.c
 	DNDSResult.c
 	DNMessage.c
@@ -63,3 +63,6 @@ ADD_LIBRARY(dnds_protocol STATIC
 	per_encoder.c
 	per_opentype.c
 )
+
+install(TARGETS dnds_protocol
+	LIBRARY DESTINATION lib)
