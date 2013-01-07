@@ -63,3 +63,6 @@ ADD_LIBRARY(dnds_protocol SHARED
 	per_encoder.c
 	per_opentype.c
 )
+
+install(TARGETS dnds_protocol
+	LIBRARY DESTINATION lib)
