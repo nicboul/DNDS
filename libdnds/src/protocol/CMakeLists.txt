@@ -1,6 +1,6 @@
 include_directories("./")
 
-ADD_LIBRARY(dnds_protocol STATIC
+ADD_LIBRARY(dnds_protocol SHARED
 	DNDSMessage.c
 	DNDSResult.c
 	DNMessage.c
