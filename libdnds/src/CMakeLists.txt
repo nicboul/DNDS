@@ -1,5 +1,5 @@
-add_subdirectory("${CMAKE_SOURCE_DIR}/src/protocol")
-include_directories("./protocol/")
+add_subdirectory(protocol)
+include_directories(protocol)
 
 set(DNDS_SRCS
 	aclset.c
@@ -42,8 +42,8 @@ add_library(dnds SHARED ${DNDS_SRCS})
 
 find_package(OpenSSL REQUIRED)
 
-include_directories("${CMAKE_SOURCE_DIR}/../udt4/src/")
-set(UDT_LIBRARIES ${CMAKE_SOURCE_DIR}/../udt4/src/libudt.a)
+include_directories(${CMAKE_SOURCE_DIR}/udt4/src/)
+set(UDT_LIBRARIES ${CMAKE_SOURCE_DIR}/udt4/src/libudt.a)
 
 target_link_libraries(dnds
 	${UDT_LIBRARIES}
