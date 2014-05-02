@@ -57,6 +57,9 @@ static void tunnel_in(struct session* session)
 	struct session *p2p_session;
 
 	frame_size = tapcfg_read(session->tapcfg, framebuf, 2000);
+	if (frame_size <= 0)
+		return;
+
 	p2p_session = p2p_find_session(framebuf);
 	if (p2p_session) {
 		//printf("p2p_session: %p netc: %p\n", p2p_session, p2p_session->netc);
@@ -454,7 +457,7 @@ static void dispatch_op(struct session *session, DNDSMessage_t *msg)
 static void *iface_loop(void *session)
 {
 	while (!g_shutdown) {
-		if (tapcfg_wait_readable(((struct session *)session)->tapcfg, 0))
+//		if (tapcfg_wait_readable(((struct session *)session)->tapcfg, 0))
 			tunnel_in((struct session *)session);
 	}
 }
