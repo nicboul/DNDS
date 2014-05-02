@@ -453,8 +453,10 @@ static void dispatch_op(struct session *session, DNDSMessage_t *msg)
 
 static void *iface_loop(void *session)
 {
-	if (tapcfg_wait_readable(((struct session *)session)->tapcfg, 0))
-		tunnel_in((struct session *)session);
+	while (!g_shutdown) {
+		if (tapcfg_wait_readable(((struct session *)session)->tapcfg, 0))
+			tunnel_in((struct session *)session);
+	}
 }
 
 static void *dnc_loop(void *session)
