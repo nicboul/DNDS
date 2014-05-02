@@ -367,15 +367,18 @@ static void net_on_input(peer_t *peer)
 		peer->disconnect(peer);		// inform lower-layer
 		net_connection_free(netc);
 	}
-	else if (netc->security_level > NET_UNSECURE
-			&& netc->kconn->status == KRYPT_SECURE) {
+	else {
 
 		if (mbuf_count(netc->queue_msg) > 0)
 			netc->on_input(netc);
 
-		/* Catch server renegotiation */
-		krypt_decrypt_buf(netc->kconn);
-		net_do_krypt(netc);
+		if (netc->security_level > NET_UNSECURE
+                        && netc->kconn->status == KRYPT_SECURE) {
+
+			/* Catch server renegotiation */
+			krypt_decrypt_buf(netc->kconn);
+			net_do_krypt(netc);
+		}
 	}
 
 }
@@ -441,8 +444,6 @@ static void net_on_connect(peer_t *peer)
 	}
 
 	new_netc->on_connect(new_netc);
-	if (netc->security_level == NET_UNSECURE)
-		new_netc->on_secure(new_netc);
 }
 
 void net_step_up(netc_t *netc)

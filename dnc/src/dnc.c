@@ -174,7 +174,7 @@ void transmit_register(netc_t *netc)
 	session->state = SESSION_STATE_WAIT_ANSWER;
 
 	/* Prepare to the re-handshake, set up certificates */
-	krypt_set_rsa(session->netc->kconn);
+//	krypt_set_rsa(session->netc->kconn);
 
         return;
 }
@@ -194,13 +194,14 @@ void *try_to_reconnect(void *ptr)
 #endif
 
 		retry_netc = net_client(dnc_cfg->server_address, dnc_cfg->server_port,
-			NET_PROTO_UDT, NET_SECURE_ADH, session->passport,
+			NET_PROTO_UDT, NET_UNSECURE, session->passport,
 			on_disconnect, on_input, on_secure);
 
 		if (retry_netc) {
 			session->state = SESSION_STATE_NOT_AUTHED;
 			session->netc = retry_netc;
 			retry_netc->ext_ptr = session;
+			transmit_register(session->netc);
 			return NULL;
 		}
 	} while (!g_shutdown);
@@ -252,7 +253,6 @@ static void on_secure(netc_t *netc)
 		else {
 			transmit_register(netc);
 		}
-
 	}
 }
 

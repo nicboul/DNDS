@@ -288,7 +288,7 @@ int dnd_init(struct dnd_cfg *dnd_cfg)
 {
 	int ret;
 
-	ret = net_server(dnd_cfg->ipaddr, dnd_cfg->port, NET_PROTO_UDT, NET_SECURE_ADH, NULL,
+	ret = net_server(dnd_cfg->ipaddr, dnd_cfg->port, NET_PROTO_UDT, NET_UNSECURE, NULL,
 		on_connect, on_disconnect, on_input, on_secure);
 
 	if (ret < 0) {
