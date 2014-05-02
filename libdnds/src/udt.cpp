@@ -114,7 +114,6 @@ static int udtbus_send(peer_t *peer, void *data, int len)
 		on_disconnect(peer);
 		return -1;
 	}
-	printf("udtsend: %d\n", ret);
 	return ret;
 }
 
@@ -131,7 +130,6 @@ static int udtbus_recv(peer_t *peer)
 		jlog(L_WARNING, "recv: %s", UDT::getlasterror().getErrorMessage());
 		return -1;
 	}
-	printf("udtrecv: %d\n", rs);
 
 	return rs;
 }
