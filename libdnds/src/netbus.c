@@ -694,6 +694,7 @@ void net_p2p_on_connect(peer_t *peer)
 	}
 
 	netc->on_connect(netc);
+	netc->on_secure(netc);
 
 	return;
 }

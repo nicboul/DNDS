@@ -75,7 +75,7 @@ static void forward_ethernet(struct session *session, DNDSMessage_t *msg)
 		&& session_dst != NULL
 		&& session_dst->netc != NULL) {		/* AND the session is up */
 
-			/*jlog(L_DEBUG, "forwarding the packet to [%s]", session_dst->ip);*/
+			jlog(L_DEBUG, "forwarding the packet to [%s]", session_dst->ip);
 			net_send_msg(session_dst->netc, msg);
 
 			int lnk_state = 0;
@@ -93,7 +93,7 @@ static void forward_ethernet(struct session *session, DNDSMessage_t *msg)
 			session_list = session->context->session_list;
 			while (session_list != NULL) {
 				net_send_msg(session_list->netc, msg);
-				/*jlog(L_DEBUG, "flooding the packet to [%s]", session_list->ip);*/
+				jlog(L_DEBUG, "flooding the packet to [%s]", session_list->ip);
 				session_list = session_list->next;
 			}
 	} else {
@@ -194,6 +194,9 @@ static void on_secure(netc_t *netc)
 		context_add_session(session->context, session);
 		jlog(L_DEBUG, "session id: %d", session->id);
 	}
+	context_add_session(session->context, session);
+	jlog(L_DEBUG, "session id: %d", session->id);
+
 }
 
 static void on_input(netc_t *netc)
