@@ -151,7 +151,7 @@ static void on_connect(peer_t *peer)
 	int addrlen = sizeof(clientaddr);
 
 	client = UDT::accept(peer->socket, (sockaddr*)&clientaddr, &addrlen);
-	UDT::setsockopt(client, 0, UDT_MSS, &mss, sizeof(int));
+//	UDT::setsockopt(client, 0, UDT_MSS, &mss, sizeof(int));
 	if (client == UDT::INVALID_SOCK) {
 		jlog(L_WARNING, "accept: %s", UDT::getlasterror().getErrorMessage());
 		return;
@@ -250,7 +250,7 @@ peer_t *udtbus_client(const char *listen_addr,
 	ret = getaddrinfo(NULL, port, &hints, &local);
 
 	UDTSOCKET client = UDT::socket(local->ai_family, local->ai_socktype, local->ai_protocol);
-	UDT::setsockopt(client, 0, UDT_MSS, &mss, sizeof(int));
+//	UDT::setsockopt(client, 0, UDT_MSS, &mss, sizeof(int));
 
 	freeaddrinfo(local);
 	ret = getaddrinfo(listen_addr, port, &hints, &serv_info);
@@ -319,7 +319,7 @@ int udtbus_server(const char *listen_addr,
 	bool block = false;
 	UDT::setsockopt(serv, 0, UDT_RCVSYN, &block, sizeof(bool));
 
-	UDT::setsockopt(serv, 0, UDT_MSS, &mss, sizeof(int));
+//	UDT::setsockopt(serv, 0, UDT_MSS, &mss, sizeof(int));
 	if (UDT::bind(serv, res->ai_addr, res->ai_addrlen) == UDT::ERROR) {
 		jlog(L_WARNING, "bind: %s", UDT::getlasterror().getErrorMessage());
 		return -1;
@@ -383,7 +383,7 @@ retry:
 
 	UDTSOCKET socket = UDT::socket(local->ai_family, local->ai_socktype, local->ai_protocol);
 
-	UDT::setsockopt(socket, 0, UDT_MSS, &mss, sizeof(int));
+//	UDT::setsockopt(socket, 0, UDT_MSS, &mss, sizeof(int));
 	UDT::setsockopt(socket, 0, UDT_RENDEZVOUS, &rdv, sizeof(bool));
 	if (UDT::ERROR == UDT::bind(socket, local->ai_addr, local->ai_addrlen)) {
 		jlog(L_WARNING, "bind: %s", UDT::getlasterror().getErrorMessage());
