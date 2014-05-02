@@ -81,6 +81,7 @@ static void tunnel_out(struct session *session, DNDSMessage_t *msg)
 	uint8_t *framebuf;
 	size_t framebufsz;
 
+
 	DNDSMessage_get_ethernet(msg, &framebuf, &framebufsz);
 	tapcfg_write(session->tapcfg, framebuf, framebufsz);
 }
