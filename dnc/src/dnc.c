@@ -483,13 +483,15 @@ void *dnc_init(void *cfg)
 	dnc_cfg = (struct dnc_cfg *)cfg;
 	session = calloc(1, sizeof(struct session));
 
-	p2p_init();
 
 	if (netbus_init()) {
 		jlog(L_ERROR, "netbus_init failed");
 		return NULL;
 	}
 
+	test_init();
+/*
+	p2p_init();
 	if (krypt_init()) {
 		jlog(L_ERROR, "krypt_init failed");
 		return NULL;
@@ -528,11 +530,11 @@ void *dnc_init(void *cfg)
 	pthread_create(&thread_reconnect, NULL, try_to_reconnect, (void *)session);
 	pthread_detach(thread_reconnect);
 
-	pthread_t thread_loop;
-	pthread_create(&thread_loop, NULL, dnc_loop, session);
-
 	pthread_t iface_thread_loop;
 	pthread_create(&iface_thread_loop, NULL, iface_loop, session);
+*/
+	pthread_t thread_loop;
+	pthread_create(&thread_loop, NULL, dnc_loop, session);
 
 	return NULL;
 }

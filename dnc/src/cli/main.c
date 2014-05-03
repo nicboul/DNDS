@@ -18,6 +18,7 @@
 #include <sys/stat.h>
 
 #include <stdio.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -31,11 +32,18 @@ void on_log(const char *logline)
 	fprintf(stdout, "%s", logline);
 }
 
+void sig_handler(int sig)
+{
+	exit(0);
+}
+
 int main(int argc, char *argv[])
 {
 	int opt;
 	struct dnc_cfg *dnc_cfg = NULL;
 	dnc_cfg = calloc(1, sizeof(struct dnc_cfg));
+
+	signal(SIGINT, sig_handler);
 
 	while ((opt = getopt(argc, argv, "vhp:")) != -1) {
 		switch (opt) {

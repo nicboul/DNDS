@@ -14,7 +14,8 @@ set(dnc_sources
 	config.c
 	dnc.c
 	p2p.c
-	session.c)
+	session.c
+	test.c)
 
 message(STATUS "CMAKE_SOURCE_DIR" ${CMAKE_SOURCE_DIR})
 
