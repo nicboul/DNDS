@@ -466,6 +466,8 @@ int net_send_msg(netc_t *netc, DNDSMessage_t *msg)
 	size_t nbyte;
 	int ret;
 
+	
+//peer_t *peer = NULL;
 	ec = der_encode(&asn_DEF_DNDSMessage, msg, serialize_buf_enc, netc);
 	if (ec.encoded == -1) {
 		netc->buf_enc_data_size = 0;	// mark the buffer as empty
@@ -492,6 +494,10 @@ int net_send_msg(netc_t *netc, DNDSMessage_t *msg)
 	}
 	else {
 		net_queue_out(netc, netc->buf_enc, netc->buf_enc_data_size);
+
+//		peer = (peer_t *)netc->peer;
+//		peer->send(peer, netc->buf_enc,  netc->buf_enc_data_size);
+
 	}
 
 	netc->buf_enc_data_size = 0; // mark buffer as empty

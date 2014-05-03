@@ -10,6 +10,7 @@ add_executable(dnd
 	main.c
 	request.c
 	session.c
+	test.c
 )
 link_directories("${CMAKE_SOURCE_DIR}/libconfig-linux/lib/.libs")
 include_directories("${CMAKE_SOURCE_DIR}/libconfig-linux/lib/")

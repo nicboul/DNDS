@@ -16,6 +16,7 @@
 #ifndef DNDS_UDTBUS_H
 #define DNDS_UDTBUS_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
