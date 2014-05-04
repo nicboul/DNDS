@@ -450,12 +450,20 @@ static void dispatch_op(struct session *session, DNDSMessage_t *msg)
 	}
 }
 
-static void *dnc_loop(void *session)
+static void *iface_loop(void *session)
 {
 	while (!g_shutdown) {
-		udtbus_poke_queue();
 		if (tapcfg_wait_readable(((struct session *)session)->tapcfg, 0))
 			tunnel_in((struct session *)session);
+	}
+	return NULL;
+}
+
+static void *dnc_loop(void *ptr)
+{
+	(void)(ptr); // unused
+	while (!g_shutdown) {
+		udtbus_poke_queue();
 	}
 	return NULL;
 }
@@ -519,7 +527,10 @@ void *dnc_init(void *cfg)
 	pthread_detach(thread_reconnect);
 
 	pthread_t thread_loop;
-	pthread_create(&thread_loop, NULL, dnc_loop, session);
+	pthread_create(&thread_loop, NULL, dnc_loop, NULL);
+
+	pthread_t thread_iface_loop;
+	pthread_create(&thread_iface_loop, NULL, iface_loop, session);
 
 	return NULL;
 }

@@ -22,6 +22,7 @@
 #include <winsock2.h>
 #endif
 
+#include <pthread.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
@@ -107,6 +108,45 @@ passport_t *pki_passport_load_from_file(const char *certificate_filename,
 	BIO_free(bio_file);
 
 	return passport;
+}
+
+static pthread_mutex_t *lock_cs;
+static long *lock_count;
+
+void pthreads_locking_callback(int mode, int type, char *file, int line)
+{
+	(void)(file); // unused
+	(void)(line);
+
+	if (mode & CRYPTO_LOCK) {
+		pthread_mutex_lock(&(lock_cs[type]));
+		lock_count[type]++;
+	} else {
+		pthread_mutex_unlock(&(lock_cs[type]));
+	}
+}
+
+unsigned long pthreads_thread_id(void)
+{
+	unsigned long ret;
+	ret = (unsigned long)pthread_self();
+	return(ret);
+}
+
+void thread_setup(void)
+{
+	int i;
+
+	lock_cs = OPENSSL_malloc(CRYPTO_num_locks() * sizeof(pthread_mutex_t));
+	lock_count = OPENSSL_malloc(CRYPTO_num_locks() * sizeof(long));
+
+	for (i=0; i < CRYPTO_num_locks(); i++) {
+		lock_count[i] = 0;
+		pthread_mutex_init(&(lock_cs[i]),NULL);
+	}
+
+	CRYPTO_set_id_callback((unsigned long (*)())pthreads_thread_id);
+	CRYPTO_set_locking_callback((void (*)())pthreads_locking_callback);
 }
 
 static DH *get_dh_1024() {
