@@ -501,6 +501,7 @@ int krypt_init()
 	SSL_library_init();
 	SSL_load_error_strings();
 	OpenSSL_add_all_algorithms();
+	thread_setup;
 
 	return 0;
 }
