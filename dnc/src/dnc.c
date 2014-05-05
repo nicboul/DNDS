@@ -489,8 +489,8 @@ void *dnc_init(void *cfg)
 		return NULL;
 	}
 
-	test_init();
-/*
+//	test_init();
+
 	p2p_init();
 	if (krypt_init()) {
 		jlog(L_ERROR, "krypt_init failed");
@@ -532,7 +532,7 @@ void *dnc_init(void *cfg)
 
 	pthread_t iface_thread_loop;
 	pthread_create(&iface_thread_loop, NULL, iface_loop, session);
-*/
+
 	pthread_t thread_loop;
 	pthread_create(&thread_loop, NULL, dnc_loop, session);
 
