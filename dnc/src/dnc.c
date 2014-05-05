@@ -52,7 +52,7 @@ static void on_disconnect(netc_t *netc);
 static void tunnel_in(struct session* session)
 {
 	DNDSMessage_t *msg = NULL;
-	size_t frame_size = 0;
+	int frame_size = 0;
 	uint8_t framebuf[2000];
 	struct session *p2p_session;
 
@@ -457,7 +457,7 @@ static void dispatch_op(struct session *session, DNDSMessage_t *msg)
 static void *iface_loop(void *session)
 {
 	while (!g_shutdown) {
-		if (tapcfg_wait_readable(((struct session *)session)->tapcfg, 0))
+	//	if (tapcfg_wait_readable(((struct session *)session)->tapcfg, 0))
 			tunnel_in((struct session *)session);
 	}
 }
