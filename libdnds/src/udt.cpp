@@ -28,6 +28,7 @@
 
 #include <pthread.h>
 #include <udt.h>
+#include <ccc.h>
 
 #include "udt.h"
 #include "logger.h"
@@ -41,6 +42,104 @@
  * use journal function istead of count <<
  * handle errors
  */
+
+class CTCP: public CCC
+{
+public:
+   void init()
+   {
+      m_bSlowStart = true;
+      m_issthresh = 83333;
+
+      m_dPktSndPeriod = 0.0;
+      m_dCWndSize = 2.0;
+
+      setACKInterval(2);
+      setRTO(1000000);
+   }
+
+   virtual void onACK(const int& ack)
+   {
+      if (ack == m_iLastACK)
+      {
+         if (3 == ++ m_iDupACKCount)
+            DupACKAction();
+         else if (m_iDupACKCount > 3)
+            m_dCWndSize += 1.0;
+         else
+            ACKAction();
+      }
+      else
+      {
+         if (m_iDupACKCount >= 3)
+            m_dCWndSize = m_issthresh;
+
+         m_iLastACK = ack;
+         m_iDupACKCount = 1;
+
+         ACKAction();
+      }
+   }
+
+   virtual void onTimeout()
+   {
+      m_issthresh = getPerfInfo()->pktFlightSize / 2;
+      if (m_issthresh < 2)
+         m_issthresh = 2;
+
+      m_bSlowStart = true;
+      m_dCWndSize = 2.0;
+   }
+
+protected:
+   virtual void ACKAction()
+   {
+      if (m_bSlowStart)
+      {
+         m_dCWndSize += 1.0;
+
+         if (m_dCWndSize >= m_issthresh)
+            m_bSlowStart = false;
+      }
+      else
+         m_dCWndSize += 1.0/m_dCWndSize;
+   }
+
+   virtual void DupACKAction()
+   {
+      m_bSlowStart = false;
+
+      m_issthresh = getPerfInfo()->pktFlightSize / 2;
+      if (m_issthresh < 2)
+         m_issthresh = 2;
+
+      m_dCWndSize = m_issthresh + 3;
+   }
+
+protected:
+   int m_issthresh;
+   bool m_bSlowStart;
+
+   int m_iDupACKCount;
+   int m_iLastACK;
+};
+
+
+class CUDPBlast: public CCC
+{
+public:
+   CUDPBlast()
+   {
+      m_dPktSndPeriod = 1000000; 
+      m_dCWndSize = 83333.0; 
+   }
+
+public:
+   void setRate(double mbps)
+   {
+      m_dPktSndPeriod = (m_iMSS * 8.0) / mbps;
+   }
+};
 
 using namespace std;
 vector<UDTSOCKET>g_list_socket;
@@ -130,7 +229,6 @@ static int udtbus_recv(peer_t *peer)
 		jlog(L_WARNING, "recv: %s", UDT::getlasterror().getErrorMessage());
 		return -1;
 	}
-
 	return rs;
 }
 
@@ -198,7 +296,7 @@ void udtbus_poke_queue()
 	vector<UDTSOCKET> exceptfds;
 	vector<UDTSOCKET>::iterator i;
 
-	int res = UDT::selectEx(g_list_socket, &readfds, NULL, &exceptfds, 0);
+	int res = UDT::selectEx(g_list_socket, &readfds, NULL, NULL, -1);
 	if (res == 0) // no socket is ready before timeout
 		return;
 
@@ -216,7 +314,7 @@ void udtbus_poke_queue()
 			on_input(peer);
 		}
 	}
-
+/*
 	// socket that are closed or with a broken connection
 	for (i = exceptfds.begin(); i != exceptfds.end(); ++i) {
 
@@ -227,6 +325,7 @@ void udtbus_poke_queue()
 		jlog(L_NOTICE, "peer <socket:%d> closed or broken connection", peer->socket);
 		on_disconnect(peer);
 	}
+*/
 }
 
 peer_t *udtbus_client(const char *listen_addr,
@@ -250,6 +349,13 @@ peer_t *udtbus_client(const char *listen_addr,
 	UDTSOCKET client = UDT::socket(local->ai_family, local->ai_socktype, local->ai_protocol);
 //	UDT::setsockopt(client, 0, UDT_MSS, &mss, sizeof(int));
 
+	// UDT Options
+	UDT::setsockopt(client, 0, UDT_CC, new CCCFactory<CUDPBlast>, sizeof(CCCFactory<CUDPBlast>));
+	//UDT::setsockopt(client, 0, UDT_MSS, new int(9000), sizeof(int));
+	UDT::setsockopt(client, 0, UDT_SNDBUF, new int(10000000), sizeof(int));
+	UDT::setsockopt(client, 0, UDP_SNDBUF, new int(10000000), sizeof(int));
+	UDT::setsockopt(client, 0, UDT_MAXBW, new int64_t(12500000), sizeof(int));
+
 	freeaddrinfo(local);
 	ret = getaddrinfo(listen_addr, port, &hints, &serv_info);
 	if (ret != 0) {
@@ -266,6 +372,13 @@ peer_t *udtbus_client(const char *listen_addr,
 	}
 
 	freeaddrinfo(serv_info);
+
+	// using CC method
+	CUDPBlast* cchandle = NULL;
+	int temp;
+	UDT::getsockopt(client, 0, UDT_CC, &cchandle, &temp);
+	if (NULL != cchandle)
+		cchandle->setRate(500);
 
 	peer = (peer_t *)calloc(sizeof(peer_t), 1);
 	peer->type = UDTBUS_CLIENT;
@@ -316,6 +429,12 @@ int udtbus_server(const char *listen_addr,
 
 	bool block = false;
 	UDT::setsockopt(serv, 0, UDT_RCVSYN, &block, sizeof(bool));
+
+	// UDT Options
+	UDT::setsockopt(serv, 0, UDT_CC, new CCCFactory<CUDPBlast>, sizeof(CCCFactory<CUDPBlast>));
+	//UDT::setsockopt(serv, 0, UDT_MSS, new int(9000), sizeof(int));
+	UDT::setsockopt(serv, 0, UDT_RCVBUF, new int(10000000), sizeof(int));
+	UDT::setsockopt(serv, 0, UDP_RCVBUF, new int(10000000), sizeof(int));
 
 //	UDT::setsockopt(serv, 0, UDT_MSS, &mss, sizeof(int));
 	if (UDT::bind(serv, res->ai_addr, res->ai_addrlen) == UDT::ERROR) {

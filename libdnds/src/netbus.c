@@ -363,9 +363,9 @@ static void net_on_input(peer_t *peer)
 
 	ret = net_decode_msg(netc);
 	if (ret == -1) {
-		netc->on_disconnect(netc);	// inform upper-layer
-		peer->disconnect(peer);		// inform lower-layer
-		net_connection_free(netc);
+	//	netc->on_disconnect(netc);	// inform upper-layer
+	//	peer->disconnect(peer);		// inform lower-layer
+	//	net_connection_free(netc);
 	}
 	else {
 

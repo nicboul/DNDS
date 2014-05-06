@@ -29,7 +29,6 @@ void test_on_disconnect(netc_t *netc)
 void test_on_input(netc_t *netc)
 {
 	(void)(netc);
-	printf("on input\n");
 }
 
 void test_on_secure(netc_t *netc)
@@ -70,10 +69,10 @@ int test_init()
 //	int ss = 0;
 	int i = 0;
 	char *data = malloc(size);
-/*
+
 	pthread_t thread_loop;
 	pthread_create(&thread_loop, NULL, bus_loop, NULL);
-*/
+
         DNDSMessage_t *msg = NULL;
 
 	for (i = 0; i < 1000000; i++) {
@@ -85,7 +84,7 @@ int test_init()
 
 		net_send_msg(n_netc, msg);
 		DNDSMessage_set_ethernet(msg, NULL, 0);
-		//DNDSMessage_del(msg);
+		DNDSMessage_del(msg);
 
 /*
 		ssize = 0;

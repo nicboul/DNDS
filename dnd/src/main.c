@@ -94,7 +94,7 @@ int parse_config(config_t *cfg, struct dnd_cfg *dnd_cfg)
 
 int main(int argc, char *argv[])
 {
-//	init_test();
+	init_test();
 
 	int opt;
 	uint8_t quiet = 0;
@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
 		jlog(L_ERROR, "parse_config failed");
 		exit(EXIT_FAILURE);
 	}
-
+/*
 	if (krypt_init()) {
 		jlog(L_ERROR, "krypt_init failed");
 		exit(EXIT_FAILURE);
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
 		jlog(L_ERROR, "dnd_init failed");
 		exit(EXIT_FAILURE);
 	}
-
+*/
 	while (1) { sleep(1); }
 
 	return 0;
